@@ -1,0 +1,222 @@
+-- schema used in creating the database
+-- the primary keys and foreign keys are also mentioned here
+
+drop database gyanpusthak2;
+create database gyanpusthak2;
+use gyanpusthak2;
+
+-- 1. universities
+CREATE TABLE universities (
+    university_id INT PRIMARY KEY,
+    name VARCHAR(100),
+    address TEXT,
+    rep_first_name VARCHAR(50),
+    rep_last_name VARCHAR(50),
+    rep_email VARCHAR(100),
+    rep_phone VARCHAR(15)
+);
+
+-- 2. departments
+CREATE TABLE departments (
+    department_id INT PRIMARY KEY,
+    department_name VARCHAR(100),
+    university_id INT,
+    FOREIGN KEY (university_id) REFERENCES universities(university_id) 
+        ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- 3. courses
+CREATE TABLE courses (
+    course_id INT PRIMARY KEY,
+    course_name VARCHAR(100),
+    department_id INT,
+    university_id INT,
+    year INT,
+    semester VARCHAR(20),
+    FOREIGN KEY (university_id) REFERENCES universities(university_id) 
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (department_id) REFERENCES departments(department_id) 
+        ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- 4. books
+CREATE TABLE books (
+    book_id INT PRIMARY KEY,
+    quantity int DEFAULT 0,
+    title VARCHAR(200),
+    isbn VARCHAR(20),
+    publisher VARCHAR(100),
+    publication_date DATE,
+    edition INT,
+    language VARCHAR(50),
+    format VARCHAR(50),
+    book_type VARCHAR(20),
+    purchase_option VARCHAR(20),
+    category varchar(50),
+    price DECIMAL(10,2),
+    rating DECIMAL(2,1)
+);
+
+-- 5. students
+CREATE TABLE student_users (
+    student_id VARCHAR(20) PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    email VARCHAR(100),
+    address TEXT,
+    phone_number VARCHAR(15),
+    date_of_birth DATE,
+    university_id INT,
+    department_id INT,
+    student_status VARCHAR(20),
+    current_year VARCHAR(10),
+    FOREIGN KEY (university_id) REFERENCES universities(university_id) 
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (department_id) REFERENCES departments(department_id) 
+        ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- 6. instructors
+CREATE TABLE instructors (
+    instructor_id INT PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    university_id INT,
+    department_id INT,
+    FOREIGN KEY (university_id) REFERENCES universities(university_id) 
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (department_id) REFERENCES departments(department_id) 
+        ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- 7. admin
+CREATE TABLE administrators (
+    employee_id INT PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    gender VARCHAR(10),
+    salary DECIMAL(10,2),
+    aadhaar_number VARCHAR(20),
+    email VARCHAR(100),
+    address TEXT,
+    phone_number VARCHAR(15)
+);
+
+-- 8. support users
+CREATE TABLE customer_support_users (
+    employee_id INT PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    gender VARCHAR(10),
+    salary DECIMAL(10,2),
+    aadhaar_number VARCHAR(20),
+    email VARCHAR(100),
+    address TEXT,
+    phone_number VARCHAR(15)
+);
+
+-- 9. trouble tickets
+CREATE TABLE trouble_tickets (
+    ticket_id INT AUTO_INCREMENT PRIMARY KEY,
+    category VARCHAR(50),
+    date_logged DATE,
+    created_by VARCHAR(100),
+    title VARCHAR(200),
+    problem_description TEXT,
+    status VARCHAR(20),
+    status_history TEXT,
+    resolved_by varchar(20),
+    completion_date DATE
+);
+
+-- 10. orders
+CREATE TABLE orders (
+    order_id INT PRIMARY KEY AUTO_INCREMENT,
+    student_id VARCHAR(20),
+    date_created DATETIME DEFAULT CURRENT_TIMESTAMP,
+    book_id INT,
+    shipping_type VARCHAR(20),
+    credit_card_number VARCHAR(20),
+    credit_card_expiry DATE,
+    card_holder_name VARCHAR(100),
+    card_type VARCHAR(20),
+    quantity int DEFAULT 0,
+    price Decimal(10,2) Default 0,
+     status VARCHAR(20),
+    CHECK (status IN ('inprocess', 'ordered', 'cancelled')),
+    is_reviewed BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (student_id) REFERENCES student_users(student_id) 
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (book_id) REFERENCES books(book_id) 
+        ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- 11. cart
+CREATE TABLE cart (
+    cart_id INT auto_increment primary key,
+    student_id VARCHAR(20),
+    book_id INT,
+    date_created DATE,
+    price decimal(10,2),
+    quantity int DEFAULT 0,
+    FOREIGN KEY (student_id) REFERENCES student_users(student_id) 
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (book_id) REFERENCES books(book_id) 
+        ON DELETE CASCADE ON UPDATE CASCADE
+);
+-- 12. reviews
+CREATE TABLE reviews (
+    review_id INT PRIMARY KEY auto_increment,
+    book_id INT,
+    rating DECIMAL(2,1),
+    review_text TEXT,
+    FOREIGN KEY (book_id) REFERENCES books(book_id) 
+        ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- 13. course-books
+CREATE TABLE courses_books (
+    book_id INT,
+    course_id INT,
+    FOREIGN KEY(book_id) REFERENCES books(book_id) 
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY(course_id) REFERENCES courses(course_id) 
+        ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- 14. instructor-courses
+CREATE TABLE inst_courses (
+    instructor_id INT,
+    course_id INT,
+    FOREIGN KEY(instructor_id) REFERENCES instructors(instructor_id) 
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY(course_id) REFERENCES courses(course_id) 
+        ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- 15. cancelled-orders
+create table cancelled_orders(
+   can_id int primary key auto_increment,
+   book_id int,
+   quantity int,
+   order_id int,
+   foreign key (book_id) references books(book_id)  ON DELETE CASCADE ON UPDATE CASCADE,
+   foreign key (order_id) references orders(order_id)  ON DELETE CASCADE ON UPDATE CASCADE);
+
+-- 16. book-author
+create table book_author(
+book_id int,
+author_name varchar(50),
+ foreign key (book_id) references books(book_id)  ON DELETE CASCADE ON UPDATE CASCADE);
+
+-- 17. book-keywords
+create table book_keywords(
+book_id int,
+keywords varchar(50),
+ foreign key (book_id) references books(book_id)  ON DELETE CASCADE ON UPDATE CASCADE);
+ 
+-- 18. book-subcategory
+create table book_subcategory(
+book_id int,
+subcategory varchar(50),
+ foreign key (book_id) references books(book_id)  ON DELETE CASCADE ON UPDATE CASCADE);

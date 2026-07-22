@@ -1,0 +1,214 @@
+-- the database used for testing the website
+
+-- 1. universities
+INSERT INTO universities (university_id, name, address, rep_first_name, rep_last_name, rep_email, rep_phone) VALUES
+(1, 'IIT Bombay', 'Main Gate Rd, IIT Area, Powai, Mumbai, Maharashtra 400076', 'Ramesh', 'Rao', 'admin@iitb.ac.in', '022-2572-2545'),
+(2, 'IIT Madras', 'IIT P.O., Chennai, Tamil Nadu 600036', 'Srinivas', 'Iyer', 'admin@iitm.ac.in', '044-2257-8000'),
+(3, 'IIT Delhi', 'Hauz Khas, New Delhi, Delhi 110016', 'Amit', 'Sharma', 'admin@iitd.ac.in', '011-2659-7135'),
+(4, 'IIT Bhubaneswar', 'Argul, Khordha, Odisha 752050', 'Priya', 'Das', 'admin@iitbbs.ac.in', '0674-713-4560'),
+(5, 'IIT Kharagpur', 'Kharagpur, West Bengal 721302', 'Subhasish', 'Banerjee', 'admin@iitkgp.ac.in', '03222-255303'),
+(6, 'Jadavpur University', '188, Raja S.C. Mallick Rd, Kolkata, West Bengal 700032', 'Anindya', 'Sen', 'admin@jadavpur.edu', '033-2414-6666'),
+(7, 'Calcutta University', '87/1, College Street, Kolkata, West Bengal 700073', 'Debashis', 'Mukherjee', 'admin@caluniv.ac.in', '033-2241-0071'),
+(8, 'NIT Rourkela', 'Sector 1, Rourkela, Odisha 769008', 'Pradip', 'Kumar', 'admin@nitrkl.ac.in', '0661-246-2020'),
+(9, 'BITS Pilani', 'Vidya Vihar, Pilani, Rajasthan 333031', 'Souvik', 'Bhattacharyya', 'admin@pilani.bits-pilani.ac.in', '01596-245-073');
+
+-- 2. departments
+INSERT INTO departments (department_id, department_name, university_id) VALUES
+(101, 'Computer Science and Engineering', 4),
+(102, 'Electrical Engineering', 4),
+(103, 'Computer Science and Engineering', 5),
+(104, 'Information Technology', 6),
+(105, 'Computer Science and Engineering', 1),
+(106, 'Electrical Engineering', 1),
+(107, 'Computer Science and Engineering', 2),
+(108, 'Computer Science and Engineering', 3),
+(109, 'Information Technology', 5),
+(110, 'Computer Science and Engineering', 6),
+(111, 'Mechanical Engineering', 1),
+(112, 'Civil Engineering', 2),
+(113, 'Chemical Engineering', 3),
+(114, 'Aerospace Engineering', 5),
+(115, 'Electronics and Communication', 8),
+(116, 'Biological Sciences', 9),
+(117, 'Physics', 7),
+(118, 'Mathematics', 6);
+
+-- 3. instructors
+INSERT INTO instructors (instructor_id, first_name, last_name, university_id, department_id) VALUES
+(1, 'Sumana', 'Maiti', 5, 103),
+(2, 'Shreya', 'Ghosh', 4, 101),
+(3, 'Pragati', 'Shrivastava', 4, 101),
+(4, 'Ram Prasad', 'Padhy', 4, 102),
+(5, 'Sudarshan', 'S', 1, 105),
+(6, 'Uday', 'Khedker', 1, 105),
+(7, 'Kamakoti', 'Veezhinathan', 2, 107),
+(8, 'Sanjiva', 'Prasad', 3, 108),
+(9, 'Pabitra', 'Mitra', 5, 103),
+(10, 'Samiran', 'Chattopadhyay', 6, 104),
+(11, 'Milind', 'Atrey', 1, 111),
+(12, 'Manu', 'Santhanam', 2, 112),
+(13, 'Shantanu', 'Roy', 3, 113),
+(14, 'Manoranjan', 'Sinha', 5, 114),
+(15, 'Susmita', 'Das', 8, 115),
+(16, 'Suman', 'Kapur', 9, 116),
+(17, 'Amitabha', 'Ghosh', 7, 117),
+(18, 'Farooq', 'Ali', 6, 118);
+
+-- 4. courses
+INSERT INTO courses (course_id, course_name, department_id, university_id, year, semester) VALUES
+(201, 'Database Management Systems', 101, 4, 2026, 'Spring'),
+(202, 'Data Mining and Machine Learning', 101, 4, 2026, 'Autumn'),
+(203, 'Utilization of Electric Power', 102, 4, 2026, 'Spring'),
+(204, 'Advanced Data Structures', 103, 5, 2026, 'Autumn'),
+(205, 'CS347: Operating Systems', 105, 1, 2026, 'Autumn'),
+(206, 'CS315: Database and Information Systems', 105, 1, 2026, 'Spring'),
+(207, 'CS3300: Compiler Design', 107, 2, 2026, 'Autumn'),
+(208, 'COL202: Discrete Mathematical Structures', 108, 3, 2026, 'Spring'),
+(209, 'CS60050: Machine Learning', 103, 5, 2026, 'Autumn'),
+(210, 'CS401: Computer Networks', 110, 6, 2026, 'Spring'),
+(211, 'ME301: Fluid Mechanics', 111, 1, 2026, 'Spring'),
+(212, 'CE201: Solid Mechanics', 112, 2, 2026, 'Autumn'),
+(213, 'CH301: Mass Transfer Operations', 113, 3, 2026, 'Spring'),
+(214, 'AE401: Aerodynamics', 114, 5, 2026, 'Autumn'),
+(215, 'EC201: Digital Logic Design', 115, 8, 2026, 'Autumn'),
+(216, 'BIO101: Introductory Biology', 116, 9, 2026, 'Spring'),
+(217, 'PHY401: Quantum Mechanics', 117, 7, 2026, 'Autumn'),
+(218, 'MAT201: Linear Algebra', 118, 6, 2026, 'Spring');
+
+-- 5. student users
+INSERT INTO student_users (student_id, first_name, last_name, email, address, phone_number, date_of_birth, university_id, department_id, student_status, current_year) VALUES
+('23cs01067', 'Harshavaishnav', 'Velineni', '23cs01067@iitbbs.ac.in', 'Mahanadi Hall of Residence, IIT Bhubaneswar', '9876543210', '2004-05-14', 4, 101, 'Active', '3rd Year'),
+('23cs01071', 'Nihal Tej', 'Vasamsetti', '23cs01071@iitbbs.ac.in', 'Brahmaputra Hall of Residence, IIT Bhubaneswar', '9876543211', '2005-02-20', 4, 101, 'Active', '3rd Year'),
+('23cs02009', 'Charan', 'Rebba', '23cs02009@iitkgp.ac.in', 'LBS Hall of Residence, IIT Kharagpur', '9876543212', '2004-11-08', 5, 103, 'Active', '3rd Year'),
+('22B030011', 'Aditya', 'Deshmukh', 'aditya.d@iitb.ac.in', 'Hostel 3, IIT Bombay, Powai', '9123456780', '2003-08-12', 1, 105, 'Active', '4th Year'),
+('22B030045', 'Kavya', 'Nair', 'kavya.n@iitb.ac.in', 'Hostel 10, IIT Bombay, Powai', '9123456781', '2004-01-25', 1, 105, 'Active', '4th Year'),
+('CS23B041', 'Karthik', 'Rajan', 'cs23b041@smail.iitm.ac.in', 'Godavari Hostel, IIT Madras', '9123456782', '2005-06-19', 2, 107, 'Active', '2nd Year'),
+('2023CS10509', 'Neha', 'Gupta', 'cs1230509@iitd.ac.in', 'Kailash Hostel, IIT Delhi', '9123456783', '2005-03-30', 3, 108, 'Active', '2nd Year'),
+('23CS30015', 'Soumya', 'Chatterjee', 'soumya.c@kgpian.iitkgp.ac.in', 'RK Hall, IIT Kharagpur', '9123456784', '2004-09-14', 5, 103, 'Active', '3rd Year'),
+('002211001045', 'Ananya', 'Sen', 'ananya.sen@jadavpur.edu', 'Pritilata Chhatrinibas, JU', '9123456785', '2003-12-05', 6, 110, 'Active', '4th Year'),
+('21M010023', 'Rohan', 'Joshi', 'rohan.j@iitb.ac.in', 'Hostel 5, IIT Bombay', '9988776655', '2002-10-11', 1, 111, 'Active', '4th Year'),
+('CE22B015', 'Meera', 'Krishnan', 'ce22b015@smail.iitm.ac.in', 'Sharavati Hostel, IIT Madras', '9988776656', '2003-04-22', 2, 112, 'Active', '3rd Year'),
+('2022CH10444', 'Arjun', 'Singh', 'ch1220444@iitd.ac.in', 'Zanskar Hostel, IIT Delhi', '9988776657', '2004-07-08', 3, 113, 'Active', '3rd Year'),
+('22AE30012', 'Priya', 'Mohanty', 'priya.m@kgpian.iitkgp.ac.in', 'SN/IG Hall, IIT Kharagpur', '9988776658', '2003-11-19', 5, 114, 'Active', '3rd Year'),
+('122EC0045', 'Ankit', 'Patra', '122ec0045@nitrkl.ac.in', 'VS Hall, NIT Rourkela', '9988776659', '2004-02-14', 8, 115, 'Active', '2nd Year'),
+('2023A1PS0456P', 'Isha', 'Sharma', 'f20230456@pilani.bits-pilani.ac.in', 'Meera Bhawan, BITS Pilani', '9988776660', '2005-09-03', 9, 116, 'Active', '1st Year');
+
+-- 6. books
+INSERT INTO books (book_id, quantity, title, isbn, publisher, publication_date, edition, language, format, book_type, purchase_option, category, price, rating) VALUES
+(1001, 25, 'Database System Concepts', '978-0073523323', 'McGraw-Hill', '2019-01-01', 7, 'English', 'Hardcover', 'Textbook', 'Buy/Rent', 'Computer Science', 850.00, 4.5),
+(1002, 15, 'Generation, Distribution and Utilization of Electrical Energy', '978-8122438392', 'New Age International', '2015-01-01', 3, 'English', 'Paperback', 'Textbook', 'Buy', 'Electrical Engineering', 450.00, 4.2),
+(1003, 30, 'Pattern Recognition and Machine Learning', '978-0387310732', 'Springer', '2006-08-16', 1, 'English', 'Hardcover', 'Reference', 'Buy/Rent', 'Computer Science', 1200.00, 4.8),
+(1004, 40, 'Operating System Concepts', '978-1118063330', 'Wiley', '2012-12-17', 9, 'English', 'Paperback', 'Textbook', 'Buy/Rent', 'Computer Science', 650.00, 4.6),
+(1005, 35, 'Computer Networking: A Top-Down Approach', '978-0133594140', 'Pearson', '2016-05-06', 7, 'English', 'Paperback', 'Textbook', 'Buy/Rent', 'Computer Science', 720.00, 4.7),
+(1006, 20, 'Compilers: Principles, Techniques, and Tools', '978-0321486813', 'Pearson', '2006-08-31', 2, 'English', 'Hardcover', 'Textbook', 'Buy', 'Computer Science', 899.00, 4.8),
+(1007, 50, 'Introduction to Algorithms', '978-0262033848', 'MIT Press', '2009-07-31', 3, 'English', 'Hardcover', 'Textbook', 'Buy/Rent', 'Computer Science', 1150.00, 4.9),
+(1008, 15, 'Discrete Mathematics and Its Applications', '978-0073383095', 'McGraw-Hill', '2011-06-14', 7, 'English', 'Paperback', 'Textbook', 'Buy', 'Mathematics', 780.00, 4.4),
+(1009, 25, 'Fluid Mechanics', '978-0073398273', 'McGraw-Hill', '2015-01-16', 8, 'English', 'Hardcover', 'Textbook', 'Buy/Rent', 'Mechanical Engineering', 850.00, 4.6),
+(1010, 30, 'Mechanics of Materials', '978-0134319650', 'Pearson', '2016-01-15', 10, 'English', 'Hardcover', 'Textbook', 'Buy', 'Civil Engineering', 920.00, 4.7),
+(1011, 20, 'Unit Operations of Chemical Engineering', '978-0072848236', 'McGraw-Hill', '2004-10-27', 7, 'English', 'Hardcover', 'Textbook', 'Buy/Rent', 'Chemical Engineering', 1100.00, 4.8),
+(1012, 15, 'Fundamentals of Aerodynamics', '978-1259129919', 'McGraw-Hill', '2016-03-21', 6, 'English', 'Paperback', 'Textbook', 'Buy', 'Aerospace Engineering', 1350.00, 4.9),
+(1013, 45, 'Digital Design: With an Introduction to the Verilog HDL', '978-0132774208', 'Pearson', '2012-01-12', 5, 'English', 'Paperback', 'Textbook', 'Buy/Rent', 'Electronics', 600.00, 4.5),
+(1014, 18, 'Introduction to Quantum Mechanics', '978-1107189638', 'Cambridge', '2018-08-16', 3, 'English', 'Hardcover', 'Textbook', 'Buy', 'Physics', 850.00, 4.8),
+(1015, 35, 'Linear Algebra and Its Applications', '978-0321982384', 'Pearson', '2015-01-03', 5, 'English', 'Paperback', 'Textbook', 'Buy/Rent', 'Mathematics', 700.00, 4.7);
+
+-- 7. course-books mapping
+INSERT INTO courses_books (book_id, course_id) VALUES
+(1001, 201), (1002, 203), (1003, 202), (1004, 205), (1001, 206), (1006, 207), 
+(1008, 208), (1007, 208), (1005, 210), (1009, 211), (1010, 212), (1011, 213), 
+(1012, 214), (1013, 215), (1014, 217), (1015, 218);
+
+-- 8. instructor-courses mapping
+INSERT INTO inst_courses (instructor_id, course_id) VALUES
+(2, 201), (3, 202), (4, 203), (1, 204), (5, 206), (6, 205), (7, 207), (8, 208), 
+(9, 209), (10, 210), (11, 211), (12, 212), (13, 213), (14, 214), (15, 215), 
+(16, 216), (17, 217), (18, 218);
+
+-- 9. book-author mapping
+INSERT INTO book_author (book_id, author_name) VALUES
+(1001, 'Abraham Silberschatz'), (1001, 'Henry F. Korth'), (1002, 'C.L. Wadhwa'), 
+(1003, 'Christopher M. Bishop'), (1004, 'Abraham Silberschatz'), (1004, 'Peter B. Galvin'), 
+(1005, 'James F. Kurose'), (1005, 'Keith W. Ross'), (1006, 'Alfred V. Aho'), 
+(1006, 'Monica S. Lam'), (1006, 'Ravi Sethi'), (1006, 'Jeffrey D. Ullman'), 
+(1007, 'Thomas H. Cormen'), (1007, 'Charles E. Leiserson'), (1008, 'Kenneth H. Rosen'), 
+(1009, 'Frank M. White'), (1010, 'Russell C. Hibbeler'), (1011, 'Warren L. McCabe'), 
+(1011, 'Julian Smith'), (1011, 'Peter Harriott'), (1012, 'John D. Anderson Jr.'), 
+(1013, 'M. Morris Mano'), (1013, 'Michael D. Ciletti'), (1014, 'David J. Griffiths'), 
+(1014, 'Darrell F. Schroeter'), (1015, 'Gilbert Strang');
+
+-- 10. book keywords
+INSERT INTO book_keywords (book_id, keywords) VALUES
+(1001, 'SQL, Relational, Normalization'),
+(1002, 'Electric Heating, Illumination'),
+(1003, 'K-Means, PCA, Neural Networks'),
+(1004, 'Threads, Deadlocks, Memory Management'),
+(1005, 'TCP/IP, Routing, UDP, HTTP'),
+(1006, 'Lexical Analysis, Parsing, Syntax'),
+(1007, 'Graph Algorithms, Dynamic Programming'),
+(1008, 'Logic, Set Theory, Combinatorics'),
+(1009, 'Navier-Stokes, Bernoulli, Viscosity'),
+(1010, 'Stress, Strain, Torsion, Bending'),
+(1011, 'Distillation, Absorption, Extraction'),
+(1012, 'Airfoils, Compressible Flow, Shock Waves'),
+(1013, 'Boolean Algebra, Gates, Flip-Flops'),
+(1014, 'Schrodinger Equation, Wavefunction'),
+(1015, 'Eigenvalues, Vectors, Matrices');
+
+-- 11. book subcategory
+INSERT INTO book_subcategory (book_id, subcategory) VALUES
+(1001, 'Data Management'), (1002, 'Power Systems'), (1003, 'Artificial Intelligence'), 
+(1009, 'Thermal & Fluids'), (1010, 'Structural'), (1011, 'Process Engineering'),
+(1012, 'Flight Mechanics'), (1013, 'Digital Electronics'), (1014, 'Theoretical Physics'), 
+(1015, 'Pure Math');
+
+-- 12. staff data
+INSERT INTO administrators (employee_id, first_name, last_name, gender, salary, aadhaar_number, email, address, phone_number) VALUES
+(101, 'Vikram', 'Batra', 'Male', 85000.00, '1234-5678-9012', 'admin.vikram@gyanpusthak.in', 'Sector 5, Salt Lake, Kolkata', '9876500001'),
+(102, 'Pooja', 'Sharma', 'Female', 90000.00, '2345-6789-0123', 'admin.pooja@gyanpusthak.in', 'Andheri East, Mumbai', '9876500002');
+
+-- 13. super admin
+INSERT INTO administrators (employee_id, first_name, last_name, gender, salary, aadhaar_number, email, address, phone_number) VALUES
+(999,'Super','Admin','Male',58000,'AAD005','rahul@admin.com','Kolkata','9000000005');
+
+-- 14. customer support users data
+INSERT INTO customer_support_users (employee_id, first_name, last_name, gender, salary, aadhaar_number, email, address, phone_number) VALUES
+(201, 'Rahul', 'Verma', 'Male', 45000.00, '3456-7890-1234', 'support.rahul@gyanpusthak.in', 'HSR Layout, Bangalore', '9876500003'),
+(202, 'Sneha', 'Reddy', 'Female', 46000.00, '4567-8901-2345', 'support.sneha@gyanpusthak.in', 'Ameerpet, Hyderabad', '9876500004');
+
+-- 15. customer support tickets
+INSERT INTO trouble_tickets (category, date_logged, created_by, title, problem_description, status, status_history, resolved_by, completion_date) VALUES
+('Payment', '2026-04-14', '22B030011', 'Payment deducted but order not placed', 'I tried to buy the OS book, money got deducted from my ICICI card...', 'Resolved', 'Logged -> Investigating -> Refund Initiated -> Resolved', 'Sneha Reddy', '2026-04-16'),
+('Account', '2026-04-16', 'CS23B041', 'Unable to access instructor reviews', 'When I click on the review section for CS3300 textbooks, I get a 404 error.', 'Open', 'Logged -> Assigned to IT', NULL, NULL),
+('Shipping', '2026-04-12', '122EC0045', 'Book delivered to wrong hostel', 'I ordered Digital Design to VS Hall, but the tracking shows it was delivered to DBA Hall instead.', 'Open', 'Logged -> Assigned to Logistics', NULL, NULL),
+('Refund', '2026-04-10', 'CE22B015', 'Cancelled order refund pending', 'I cancelled my order for Solid Mechanics 5 days ago, but the 920 INR has not reflected in my bank account yet.', 'Resolved', 'Logged -> Investigating -> Bank Contacted -> Resolved', 'Rahul Verma', '2026-04-15');
+
+-- 16. transactions (cart, orders, cancellations, reviews)
+INSERT INTO cart (student_id, book_id, date_created, price, quantity) VALUES
+('23cs01067', 1002, '2026-04-10', 450.00, 1),
+('23cs02009', 1003, '2026-04-12', 1200.00, 1),
+('002211001045', 1005, '2026-04-15', 720.00, 1),
+('2023CS10509', 1008, '2026-04-16', 780.00, 1),
+('21M010023', 1009, '2026-04-17', 850.00, 1),
+('2023A1PS0456P', 1014, '2026-04-17', 850.00, 1);
+
+INSERT INTO orders (order_id, student_id, book_id, shipping_type, credit_card_number, credit_card_expiry, card_holder_name, card_type, quantity, price, status, is_reviewed) VALUES
+(1, '23cs01067', 1001, 'Standard', '1234567890123456', '2028-12-01', 'Srikanth Velineni', 'Visa', 1, 850.00, 'ordered', TRUE),
+(2, '23cs01071', 1003, 'Express', '9876543210987654', '2027-10-01', 'Aarav Patel', 'MasterCard', 1, 1200.00, 'inprocess', FALSE),
+(3, '22B030045', 1006, 'Express', '5555666677778888', '2029-05-01', 'Kavya Nair', 'Visa', 1, 899.00, 'ordered', TRUE),
+(4, '23CS30015', 1007, 'Standard', '4444333322221111', '2027-08-01', 'Soumya Chatterjee', 'MasterCard', 1, 1150.00, 'inprocess', FALSE),
+(5, 'CS23B041', 1004, 'Standard', '9999888877776666', '2028-11-01', 'Karthik Rajan', 'Visa', 2, 1300.00, 'cancelled', FALSE),
+(6, '2022CH10444', 1011, 'Standard', '1111222233334444', '2027-02-01', 'Arjun Singh', 'Visa', 1, 1100.00, 'ordered', FALSE),
+(7, '22AE30012', 1012, 'Express', '5555444433332222', '2029-09-01', 'Priya Mohanty', 'MasterCard', 1, 1350.00, 'inprocess', FALSE),
+(8, '122EC0045', 1015, 'Standard', '6666777788889999', '2028-06-01', 'Ankit Patra', 'RuPay', 2, 1400.00, 'cancelled', FALSE);
+
+INSERT INTO cancelled_orders (book_id, quantity, order_id) VALUES
+(1004, 2, 5),
+(1015, 2, 8);
+
+INSERT INTO reviews (book_id, rating, review_text) VALUES
+(1001, 4.5, 'Excellent resource for understanding SQL queries and normalization.'),
+(1006, 5.0, 'The Dragon Book is a masterpiece. Prof. Uday Khedkers assignments strictly follow the parsing techniques mentioned here.'),
+(1007, 4.8, 'CLRS is heavy but it is the absolute bible for Data Structures and Algorithms. Mandatory for placements.'),
+(1004, 4.5, 'Galvin explains process synchronization brilliantly with the dining philosophers example.'),
+(1013, 4.5, 'Morris Mano is the best book to start with Digital Logic. The examples on flip-flops are very easy to follow.'),
+(1015, 5.0, 'Gilbert Strang is a legend. His approach to Linear Algebra changed my perspective completely.'),
+(1012, 4.9, 'JD Anderson writes beautifully. Reading this aerodynamics book feels like reading a novel.');
