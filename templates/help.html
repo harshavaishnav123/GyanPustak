@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Help Center</title>
+    <style>
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+            color: white;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+        }
+
+        .home {
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1e3a8a;
+        }
+
+        nav a {
+            color: white;
+            margin-left: 20px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .container {
+            width: 450px;
+            margin: 30px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 12px;
+            width: 100%;
+            background: #1e3a8a;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #2563eb;
+        }
+
+        h3 {
+            margin-top: 30px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+        }
+
+        .ticket {
+            border: 1px solid #ddd;
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .ticket h4 {
+            margin: 0;
+            color: #1e3a8a;
+            font-size: 18px;
+        }
+
+        .ticket p {
+            margin: 8px 0;
+            color: #444;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .ticket-footer {
+            font-size: 12px;
+            color: #777;
+            font-weight: bold;
+        }
+
+        .status-open {
+            color: #22c55e;
+        }
+
+        .status-closed {
+            color: #ef4444;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="home">
+        <div class="logo">Gyan Pustak</div>
+        <nav>
+            <a href="student_dash">Home</a>
+            <a href="orders">Orders</a>
+            <a href="cart">Cart 🛒</a>
+        </nav>
+    </div>
+
+    <div class="container">
+        <h2>Raise a Trouble Ticket</h2>
+
+        <input type="text" id="t-title" placeholder="Issue Title">
+        <select id="t-type">
+            <option value="Profile">Profile Issue</option>
+            <option value="Payment">Payment/Orders</option>
+            <option value="Delivery">Books/Delivery</option>
+            <option value="Other">Other</option>
+        </select>
+        <textarea id="t-desc" placeholder="Describe your issue..."></textarea>
+
+        <button onclick="handleTicketSubmission()">Submit Ticket</button>
+
+        <h3>My Active Tickets</h3>
+        <div id="ticket-list">Fetching your tickets...</div>
+    </div>
+
+    <script>
+        async function fetchTickets() {
+            try {
+                // api call for getting tickets
+                const response = await fetch('/tickets/get-tickets');
+                return await response.json();
+            } catch (error) {
+                console.error("Fetch failed:", error);
+                return null;
+            }
+        }
+        async function refreshTicketUI() {
+            const listDiv = document.getElementById('ticket-list');
+            const tickets = await fetchTickets();
+            listDiv.innerHTML = "";
+            if (!tickets || tickets.length === 0) {
+                listDiv.innerHTML = "<p style='color:gray;'>No tickets raised yet.</p>";
+                return;
+            }
+            tickets.forEach(t => {
+                const statusClass = t.status === "Open" ? "status-open" : "status-closed";
+                listDiv.innerHTML += `
+                <div class="ticket">
+                    <h4>${t.title}</h4>
+                    <p>${t.problem_description}</p>
+                    <div class="ticket-footer">
+                        Type: ${t.category} | Status: <span class="${statusClass}">${t.status}</span>
+                    </div>
+                </div>
+            `;
+            });
+        }
+        async function handleTicketSubmission() {
+            const payload = {
+                title: document.getElementById('t-title').value.trim(),
+                type: document.getElementById('t-type').value,
+                desc: document.getElementById('t-desc').value.trim()
+            };
+            if (!payload.title || !payload.desc) {
+                alert("Please fill all fields!");
+                return;
+            }
+            // api call for creating ticket
+            const res = await fetch('/tickets/create-ticket', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const result = await res.json();
+            if (result.success) {
+                alert("Ticket Submitted!");
+                document.getElementById('t-title').value = "";
+                document.getElementById('t-desc').value = "";
+                refreshTicketUI();
+            }
+        }
+
+        window.onload = refreshTicketUI;
+    </script>
+
+</body>
+
+</html>

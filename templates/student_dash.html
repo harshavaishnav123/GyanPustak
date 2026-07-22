@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Student</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1e3a8a;
+            color: white;
+            padding: 15px 30px;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        #searchBar {
+            padding: 8px;
+            width: 250px;
+            border-radius: 5px;
+            border: none;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        .hero {
+            position: relative;
+            height: 300px;
+        }
+
+        .hero img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .hero-text {
+            position: absolute;
+            top: 50%;
+            left: 50px;
+            transform: translateY(-50%);
+            color: white;
+        }
+
+        .hero-text h2 {
+            font-size: 32px;
+        }
+
+        .btn {
+            position: absolute;
+            background: #f59e0b;
+            padding: 10px 20px;
+            text-decoration: none;
+            color: black;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-top: 5%;
+        }
+
+        section {
+            padding: 30px;
+        }
+
+        h2 {
+            margin-bottom: 15px;
+        }
+
+        .books {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 20px;
+        }
+
+        .book {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            transition: 0.3s;
+            background: #fff;
+        }
+
+        .book:hover {
+            transform: scale(1.05);
+        }
+
+        .book img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+
+        .book h3 {
+            font-size: 16px;
+            margin: 10px 0 5px 0;
+            height: 40px;
+            overflow: hidden;
+        }
+
+        .book .author {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 5px;
+            font-style: italic;
+        }
+
+        .book .rating {
+            font-size: 14px;
+            color: #f59e0b;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .book p {
+            color: green;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .book button {
+            padding: 8px;
+            border: none;
+            background: #1e3a8a;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .book button:hover {
+            background: #2563eb;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #111;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">Gyan Pustak</div>
+        <input type="text" id="searchBar" placeholder="Search books...">
+        <nav>
+            <a href="profile">My Profile</a>
+            <a href="orders">My Orders</a>
+            <a href="student_dash">Home</a>
+            <a href="cart">Cart 🛒</a>
+            <a href="help">Help Center</a>
+            <a href="/logout" style="color: #fb7185; margin-left: 20px;">Logout</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794">
+        <div class="hero-text">
+            <h2>University Books & Courses</h2>
+            <p>Select your course and get recommended books</p>
+            <a href="explore" class="btn">Explore Courses</a>
+        </div>
+    </section>
+
+    <section>
+        <h2 id="bestSellingTitle">Books</h2>
+        <div class="books" id="bestSelling"></div>
+    </section>
+
+    <footer>
+        <p>© 2026 Gyan Pustak</p>
+    </footer>
+
+    <script>
+        function displayBooks(containerId, bookList) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = "";
+
+            if (!bookList || bookList.length === 0) {
+                container.innerHTML = "<p style='padding:20px; color:gray;'>No books found.</p>";
+                return;
+            }
+            bookList.forEach(book => {
+                const div = document.createElement("div");
+                div.classList.add("book");
+
+                const cleanPrice = typeof book.price === 'string' ? book.price.replace(/[^\d.]/g, '') : book.price;
+
+                div.innerHTML = `
+        <h3>${book.title}</h3>
+        <div class="author">By: ${book.authors || 'Unknown'}</div>
+        <div class="rating">⭐ ${book.rating || 'N/A'} / 5</div>
+        <p>₹${cleanPrice}</p>
+        <button onclick="window.location.href='/book_details/${book.book_id}'">View Details</button>
+    `;
+                container.appendChild(div);
+            });
+        }
+
+        async function loadInitialData() {
+            try {
+                // api call for searching books
+                const response = await fetch('/api/search?q=');
+                const booksFromDb = await response.json();
+                displayBooks("bestSelling", booksFromDb);
+            } catch (err) {
+                console.error("Failed to load books from database:", err);
+            }
+        }
+
+        async function addToCart(title, price) {
+            try {
+                // api call for adding into the cart
+                const response = await fetch('/api/add-to-cart', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title: title, price: price })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert(`✅ ${title} added to cart!`);
+                } else {
+                    alert(`❌ Error: ${data.message || 'Check if you are logged in.'}`);
+                }
+            } catch (error) {
+                alert("Server error.");
+            }
+        }
+
+        let searchTimeout;
+        document.getElementById("searchBar").addEventListener("keyup", function () {
+            const value = this.value.trim();
+            clearTimeout(searchTimeout);
+
+            searchTimeout = setTimeout(async () => {
+                try {
+                    const response = await fetch(`/api/search?q=${encodeURIComponent(value)}`);
+                    const filteredBooks = await response.json();
+                    displayBooks("bestSelling", filteredBooks);
+                } catch (err) {
+                    console.error("Search failed:", err);
+                }
+            }, 300);
+        });
+
+        loadInitialData();
+    </script>
+</body>
+
+</html>

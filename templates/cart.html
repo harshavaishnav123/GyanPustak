@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Cart</title>
+    <style>
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+            color: white;
+        }
+
+        body {
+            font-family: Arial;
+            background: #f4f4f4;
+            margin: 0;
+        }
+
+        .home {
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1e3a8a;
+        }
+
+        nav a {
+            color: white;
+            margin-left: 20px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .container {
+            width: 420px;
+            margin: 40px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .cart-item {
+            border: 1px solid #ddd;
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            background: #fafafa;
+            position: relative;
+        }
+
+        .cart-item b {
+            color: #1e3a8a;
+        }
+
+        button {
+            padding: 12px;
+            width: 100%;
+            background: #1e3a8a;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 15px;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #2563eb;
+        }
+
+        .remove-btn {
+            width: auto;
+            padding: 6px 10px;
+            background: #dc2626;
+            margin-top: 5px;
+        }
+
+        .qty-badge {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            background: #e5e7eb;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .out-of-stock-text {
+            color: #dc2626;
+            font-size: 12px;
+            font-weight: bold;
+            display: block;
+            margin-top: 5px;
+        }
+
+        #paymentModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="home">
+        <div class="logo">Gyan Pustak</div>
+        <nav>
+            <a href="student_dash">Home</a>
+            <a href="orders">Orders</a>
+            <a href="cart">Cart 🛒</a>
+        </nav>
+    </div>
+
+    <div class="container">
+        <h2>🛒 Your Cart</h2>
+        <div id="cartItems">Loading...</div>
+        <h3 id="totalPrice"></h3>
+        <button onclick="checkout()">Order Now</button>
+    </div>
+
+    <div id="paymentModal">
+        <div class="container" style="margin-top: 50px; width: 450px;">
+            <h3>💳 Payment Details</h3>
+            <hr><br>
+            <label>Shipping Type:</label>
+            <select id="shipping_type" style="width:100%; padding:8px; margin-bottom:10px;">
+                <option value="Standard">Standard (3-5 Days)</option>
+                <option value="Express">Express (1-2 Days)</option>
+            </select>
+            <input type="text" id="card_holder_name" placeholder="Card Holder Name"
+                style="width:100%; padding:8px; margin-bottom:10px;">
+            <input type="text" id="credit_card_number" placeholder="Credit Card Number"
+                style="width:100%; padding:8px; margin-bottom:10px;">
+            <input type="text" id="credit_card_expiry" placeholder="Expiry (YYYY-MM-DD)"
+                style="width:100%; padding:8px; margin-bottom:10px;">
+            <button onclick="processFinalOrder()" style="background: #059669;">Confirm & Pay</button>
+            <button onclick="document.getElementById('paymentModal').style.display='none'"
+                style="background: #6b7280; margin-top:5px;">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        let stockError = false;
+
+        function loadCart() {
+            // api call for viewing cart
+            fetch('/api/cart')
+                .then(res => res.json())
+                .then(cart => {
+                    const div = document.getElementById("cartItems");
+                    const totalDiv = document.getElementById("totalPrice");
+                    div.innerHTML = "";
+                    stockError = false;
+
+                    if (cart.length === 0) {
+                        div.innerHTML = "<p>Cart is empty</p>";
+                        totalDiv.innerHTML = "";
+                        return;
+                    }
+
+                    let total = 0;
+                    cart.forEach(item => {
+                        const price = parseFloat(item.price) || 0;
+                        const wanted = parseInt(item.cart_quantity) || 0;
+                        const available = parseInt(item.stock_quantity) || 0;
+
+                        total += (price * wanted);
+                        const hasEnough = wanted <= available;
+                        if (!hasEnough) stockError = true;
+
+                        div.innerHTML += `
+                <div class="cart-item" style="${!hasEnough ? 'border: 2px solid #dc2626; background: #fff1f1;' : ''}">
+                    <small style="color: gray;">ID: ${item.book_id}</small><br>
+                    <b>${item.title}</b><br>
+                    <span style="color: green; font-weight: bold;">₹${price} x ${wanted}</span>
+                    <div class="qty-badge">Stock: ${available}</div>
+                    ${!hasEnough ? `<span class="out-of-stock-text">⚠️ Only ${available} available. Please remove.</span>` : ''}
+                    <button class="remove-btn" onclick="removeItem(${item.cart_id})">Remove</button>
+                </div>
+            `;
+                    });
+                    totalDiv.innerHTML = "<b>Total:</b> ₹" + total.toLocaleString();
+                });
+        }
+
+        function checkout() {
+            if (stockError) {
+                alert("❌ Cannot checkout. One or more items exceed available stock.");
+                return;
+            }
+            // api call for checking items in cart
+            fetch('/api/cart')
+                .then(res => res.json())
+                .then(cart => {
+                    if (cart.length === 0) alert("Your cart is empty!");
+                    else document.getElementById('paymentModal').style.display = 'block';
+                });
+        }
+
+        function removeItem(cart_id) {
+            // api call for removing book from the cart
+            fetch('/api/cart/remove/' + cart_id, { method: 'POST' })
+                .then(() => loadCart());
+        }
+
+        async function processFinalOrder() {
+            if (stockError) return;
+
+            const paymentData = {
+                shipping_type: document.getElementById('shipping_type').value,
+                card_holder_name: document.getElementById('card_holder_name').value.trim(),
+                credit_card_number: document.getElementById('credit_card_number').value.trim(),
+                credit_card_expiry: document.getElementById('credit_card_expiry').value.trim()
+            };
+
+            if (!paymentData.card_holder_name || !paymentData.credit_card_number) {
+                alert("Please fill in payment details");
+                return;
+            }
+
+            // api call for processing checkout
+            const response = await fetch('/api/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(paymentData)
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                alert("🎉 Order placed successfully!");
+                window.location.href = "orders";
+            } else {
+                alert(data.message);
+            }
+        }
+        window.onload = loadCart;
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Orders</title>
+
+    <style>
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1e3a8a;
+            padding: 15px 30px;
+        }
+
+        .logo {
+            color: white;
+            font-size: 22px;
+            font-weight: bold;
+            flex
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #ddd;
+            padding: 10px;
+            font-weight: 500;
+        }
+
+        nav a:hover {
+            color: white;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f4f9;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .order {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .status-cancelled {
+            color: #d9534f;
+            font-weight: bold;
+            border-left: 5px solid #d9534f;
+            padding-left: 8px;
+        }
+
+        .status-confirmed {
+            color: #5cb85c;
+            font-weight: bold;
+        }
+
+        .cancel-btn {
+            background: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .cancel-btn:hover {
+            background: #cc0000;
+        }
+
+        .review-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .review-btn:hover {
+            background: #0056b3;
+        }
+
+        .review-container {
+            display: flex;
+            justify-content: flex-start;
+            margin-top: 10px;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">Gyan Pustak</div>
+        <nav>
+            <a href="cart">Cart 🛒</a>
+            <a href="student_dash">Home</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h2>Order History</h2>
+        <div id="orders-list">Loading orders...</div>
+    </div>
+
+    <script>
+        async function loadOrders() {
+            try {
+                // api call for checking orders
+                const response = await fetch('/api/orders');
+                const orders = await response.json();
+                const container = document.getElementById("orders-list");
+
+                container.innerHTML = "";
+
+                if (!orders || orders.length === 0) {
+                    container.innerHTML = "<p>No orders found.</p>";
+                    return;
+                }
+
+                for (const order of orders) {
+                    const orderTime = new Date(order.full_timestamp).getTime();
+                    const currentTime = new Date().getTime();
+                    const secondsElapsed = (currentTime - orderTime) / 1000;
+                    const timeLeft = Math.max(0, 120 - secondsElapsed);
+
+                    let actionHTML = "";
+                    let reviewHTML = "";
+
+                    if (order.status === 'cancelled') {
+                        actionHTML = `<b class="status-cancelled">ORDER CANCELLED</b>`;
+                    }
+                    else if (timeLeft > 0) {
+                        actionHTML = `
+                    <div id="action-area-${order.id}">
+                        <button class="cancel-btn" onclick="cancelOrder(${order.id})">
+                            Cancel Order (<span id="timer-${order.id}">${Math.ceil(timeLeft)}</span>s)
+                        </button>
+                    </div>`;
+
+                        startCountdown(order.id, timeLeft);
+                    }
+                    else {
+                        actionHTML = `<b class="status-confirmed">ORDER DELIVERED</b>`;
+
+                        if (order.is_reviewed) {
+                            reviewHTML = `
+                        <div class="review-container">
+                            <button class="review-btn" disabled style="background: gray; cursor: not-allowed;">
+                                Reviewed ✅
+                            </button>
+                        </div>`;
+                        } else {
+                            reviewHTML = `
+                        <div class="review-container">
+                            <button class="review-btn" id="review-btn-${order.id}"
+                                onclick="reviewOrder(${order.id}, ${order.book_id})">
+                                Review Book
+                            </button>
+                        </div>`;
+                        }
+                    }
+
+                    container.innerHTML += `
+                <div class="order">
+                    <div style="position:absolute; right:15px; top:15px; text-align:right;">
+                        ${actionHTML}
+                    </div>
+                    <b>Order #${order.id}</b><br>
+                    <small>Date: ${order.full_timestamp}</small>
+                    <p><b>Items:</b></p>
+                    <ul>
+                        ${order.items.map(item => `<li>${item}</li>`).join("")}
+                    </ul>
+                    <p><b>Quantity:</b> ${order.quantity}</p>
+                    ${reviewHTML}
+                </div>`;
+                }
+            } catch (err) {
+                document.getElementById("orders-list").innerHTML = "Error loading orders.";
+            }
+        }
+
+        function startCountdown(id, seconds) {
+            let count = Math.ceil(seconds);
+            let interval = setInterval(async () => {
+                count--;
+                let timerDisplay = document.getElementById(`timer-${id}`);
+                if (timerDisplay) timerDisplay.innerText = count;
+
+                if (count <= 0) {
+                    clearInterval(interval);
+                    const area = document.getElementById(`action-area-${id}`);
+                    if (area) {
+                        area.innerHTML = '<b class="status-confirmed">ORDER CONFIRMED</b>';
+                        await fetch(`/student/ordersuccess/${id}`, { method: 'POST' });
+                    }
+                }
+            }, 1000);
+        }
+        async function cancelOrder(id) {
+            if (!confirm("Are you sure you want to cancel this order?")) return;
+
+            // api call for cancelling order
+            const res = await fetch(`/api/cancel-order/${id}`, { method: 'POST' });
+            const data = await res.json();
+
+            alert(data.message);
+            loadOrders();
+        }
+
+        async function reviewOrder(orderId, bookId) {
+
+            let rating = prompt("Enter rating (1 to 5, decimals allowed e.g. 4.5):");
+            if (!rating) return;
+
+            rating = parseFloat(rating);
+
+            if (isNaN(rating) || rating < 1 || rating > 5) {
+                alert("Invalid rating. Please enter between 1 and 5.");
+                return;
+            }
+
+            rating = Math.round(rating * 10) / 10;
+
+            let review = prompt("Write your review:");
+            if (!review || review.trim() === "") {
+                alert("Review cannot be empty.");
+                return;
+            }
+
+            // api call for adding review
+            const res = await fetch('/api/add-review', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    order_id: orderId,
+                    book_id: bookId,
+                    rating: rating,
+                    review: review
+                })
+            });
+
+            const data = await res.json();
+            alert(data.message);
+
+            if (res.ok) {
+                const btn = document.getElementById(`review-btn-${orderId}`);
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerText = "Reviewed ✅";
+                    btn.style.background = "gray";
+                    btn.style.cursor = "not-allowed";
+                }
+            }
+        }
+
+        loadOrders();
+
+    </script>
+
+</body>
+
+</html>

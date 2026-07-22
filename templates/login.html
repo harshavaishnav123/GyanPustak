@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Gyan Pustak Login</title>
+</head>
+
+<body>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .left {
+            width: 50%;
+            background: #1e293b;
+            color: white;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .left h1 {
+            font-size: 40px;
+        }
+
+        .left p {
+            margin-bottom: 20px;
+        }
+
+        .left img {
+            width: 80%;
+            border-radius: 10px;
+        }
+
+        .right {
+            width: 50%;
+            background: white;
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .right h2 {
+            margin-bottom: 5px;
+        }
+
+        .input-group {
+            margin: 15px 0;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+    <div class="container">
+
+        <div class="left">
+            <h1>Gyan Pustak</h1>
+            <p>Your Gateway to University Knowledge</p>
+            <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f">
+        </div>
+
+        <div class="right">
+            <h2>Welcome Back</h2>
+            <p>Login to continue</p>
+
+            <form id="loginForm">
+
+                <div class="input-group">
+                    <label>Username / Email</label>
+                    <input type="text" id="username" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="password" required>
+                </div>
+
+                <button type="submit">Login</button>
+
+            </form>
+
+            <p class="error" id="errorMsg"></p>
+
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("loginForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            let username = document.getElementById("username").value;
+            let password = document.getElementById("password").value;
+
+            try {
+                let response = await fetch("http://127.0.0.1:5000/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                });
+
+                let data = await response.json();
+
+                if (data.success) {
+                    if (data.role === "student") {
+                        window.location.href = "/student_dash";
+                    }
+                    else if (data.role === "support") {
+                        window.location.href = "/support_dash";
+                    }
+                    else if (data.role === "admin") {
+                        window.location.href = "/admin_dash";
+                    }
+                    else if (data.role === "superadmin") {
+                        window.location.href = "/superadmin_dash";
+                    }
+                } else {
+                    document.getElementById("errorMsg").innerText = "Invalid credentials!";
+                }
+
+            } catch (err) {
+                document.getElementById("errorMsg").innerText = "Server error!";
+            }
+        });
+    </script>
+
+</body>
+
+</html>

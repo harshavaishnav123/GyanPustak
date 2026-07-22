@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Super-Admin</title>
+
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            background: #f4f6f9;
+        }
+
+        .sidebar {
+            width: 220px;
+            background: #1e3a8a;
+            color: white;
+            height: 100vh;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+        }
+
+        .sidebar button {
+            width: 100%;
+            padding: 12px;
+            margin: 5px 0;
+            border: none;
+            background: #feffff;
+            color: rgb(16, 15, 15);
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .sidebar button:hover {
+            background: #0be881;
+            color: black;
+        }
+
+        .main {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .active {
+            display: block;
+        }
+
+        .card {
+            display: inline-block;
+            padding: 20px;
+            margin: 10px;
+            background: white;
+            border-radius: 10px;
+            width: 180px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        input,
+        select {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: calc(100% - 24px);
+            max-width: 300px;
+        }
+
+        button.action {
+            padding: 8px 15px;
+            border: none;
+            background: #0984e3;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button.delete {
+            background: #d63031;
+        }
+
+        button.action:hover {
+            background: #74b9ff;
+        }
+
+        button.delete:hover {
+            background: #ff7675;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background: #dfe6e9;
+        }
+
+        .ticket-tabs {
+            margin-bottom: 10px;
+        }
+
+        .ticket-tabs button {
+            padding: 8px 20px;
+            margin-right: 5px;
+            border: none;
+            background: #485460;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            width: auto;
+        }
+
+        .ticket-tabs button.tab-active {
+            background: #0984e3;
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.tab-show {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <h2>Gyan Pustak</h2>
+        <button onclick="showSection('dashboard')">Dashboard</button>
+        <button onclick="showSection('view-books')">View Books</button>
+        <button onclick="showSection('add-books')">Add Books</button>
+
+        <hr style="border-color: #485460;">
+        <button onclick="showSection('universities')">Universities</button>
+        <button onclick="showSection('departments')">Departments</button>
+        <button onclick="showSection('courses')">Courses</button>
+        <button onclick="showSection('instructors')">Instructors</button>
+        <button onclick="showSection('course_mapping')">Course Maps</button>
+        <hr style="border-color: #485460;">
+
+        <hr style="border-color: #485460;">
+        <button onclick="showSection('view-universities')">View Universities</button>
+        <button onclick="showSection('view-departments')">View Departments</button>
+        <button onclick="showSection('view-courses')">View Courses</button>
+
+        <hr style="border-color: #485460;">
+
+        <button onclick="showSection('tickets')">Tickets</button>
+        <button onclick="showSection('view_employees')" id="btn-view-employees">View Employees</button>
+        <button onclick="showSection('add_employees')" id="btn-add-employees">Add Employee</button>
+        <button onclick="showSection('profile')">My Profile</button>
+        <button onclick="window.location.href='/logout'" style="background: #eb4d4b; margin-top: 20px;">Logout</button>
+    </div>
+
+    <div class="main">
+
+        <div id="dashboard" class="section active">
+            <h2>Dashboard</h2>
+            <div class="card">Total Books: <b id="books">{{ total_books }}</b></div>
+            <div class="card">Assigned: <b id="assigned">{{ assigned_count }}</b></div>
+            <div class="card">In-Process: <b id="inprocess">{{ inprocess_count }}</b></div>
+            <div class="card">Completed: <b id="closed">{{ completed_count }}</b></div>
+        </div>
+
+        <div id="view-books" class="section">
+            <h2>Book Inventory</h2>
+            <input type="text" id="searchBox" placeholder="Search by ID, Title or ISBN" oninput="filterBooks()"
+                style="max-width: 400px;">
+            <table id="bookTable">
+                <tr>
+                    <th>Book ID</th>
+                    <th>Title</th>
+                    <th>ISBN</th>
+                    <th>Actions</th>
+                </tr>
+                {% for book in books %}
+                <tr id="brow-{{ book.book_id }}">
+                    <td>{{ book.book_id }}</td>
+                    <td>{{ book.title }}</td>
+                    <td>{{ book.isbn or '—' }}</td>
+                    <td>
+                        <button class="action delete" onclick="deleteBook({{ book.book_id }})">Delete</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div id="add-books" class="section">
+            <h2>Add Book</h2>
+            <div class="form-group">
+                <input type="text" id="b-id" placeholder="Book ID *" inputmode="numeric"><br>
+                <input type="text" id="b-title" placeholder="Title *"><br>
+                <input type="text" id="b-authors" placeholder="Authors with ,"><br>
+                <input type="text" id="b-isbn" placeholder="ISBN"><br>
+                <input type="text" id="b-publisher" placeholder="Publisher"><br>
+                <input type="date" id="b-pubdate" title="Publication Date"><br>
+                <input type="text" id="b-edition" placeholder="Edition" inputmode="numeric"><br>
+                <input type="text" id="b-language" placeholder="Language"><br>
+                <input type="text" id="b-qua" placeholder="Quantity" inputmode="numeric"><br>
+                <input type="text" id="b-cat" placeholder="Category"><br>
+                <input type="text" id="b-subcat" placeholder="Subcategories with ,"><br>
+                <input type="text" id="b-key" placeholder="keywords with ,"><br>
+
+                <select id="b-format">
+                    <option value="">Format *</option>
+                    <option value="hardcover">Hardcover</option>
+                    <option value="softcover">Softcover</option>
+                    <option value="electronic">Electronic</option>
+                </select><br>
+
+                <select id="b-type">
+                    <option value="">Book Type *</option>
+                    <option value="new">New</option>
+                    <option value="used">Used</option>
+                </select><br>
+
+                <select id="b-purchase">
+                    <option value="">Purchase Option *</option>
+                    <option value="rent">Rent</option>
+                    <option value="buy">Buy</option>
+                </select><br>
+
+                <input type="text" id="b-price" placeholder="Price" step="0.01" min="0" inputmode="decimal"><br>
+                <input type="text" id="b-rating" placeholder="Rating (0.0 - 5.0)" step="0.1" min="0" max="5"
+                    inputmode="decimal"><br>
+
+                <button class="action" onclick="addBook()">Add Book</button>
+                <button class="action delete" onclick="clearBookForm()">Clear</button>
+                <span id="book-msg" style="margin-left:8px;font-weight:bold"></span>
+            </div>
+        </div>
+
+        <div id="universities" class="section">
+            <h2>Manage Universities</h2>
+            <div class="form-group">
+                <h3>Add New University</h3>
+                <input type="text" id="u-id" placeholder="University ID *" inputmode="numeric"><br>
+                <input type="text" id="u-name" placeholder="University Name *"><br>
+                <input type="text" id="u-address" placeholder="Address"><br>
+                <input type="text" id="u-rep-first" placeholder="Rep First Name"><br>
+                <input type="text" id="u-rep-last" placeholder="Rep Last Name"><br>
+                <input type="email" id="u-rep-email" placeholder="Rep Email"><br>
+                <input type="text" id="u-rep-phone" placeholder="Rep Phone"><br>
+
+                <button class="action" onclick="addUniversity()">Add University</button>
+                <span id="uni-msg" style="margin-left:8px;font-weight:bold"></span>
+            </div>
+        </div>
+
+        <div id="departments" class="section">
+            <h2>Manage Departments</h2>
+            <div class="form-group">
+                <h3>Add New Department</h3>
+                <input type="text" id="d-id" placeholder="Department ID *" inputmode="numeric"><br>
+                <input type="text" id="d-name" placeholder="Department Name *"><br>
+                <input type="text" id="d-uni-id" placeholder="Belongs to University ID *" inputmode="numeric"><br>
+
+                <button class="action" onclick="addDepartment()">Add Department</button>
+                <span id="dept-msg" style="margin-left:8px;font-weight:bold"></span>
+            </div>
+        </div>
+
+        <div id="courses" class="section">
+            <h2>Manage Courses</h2>
+            <div class="form-group">
+                <h3>Add New Course</h3>
+                <input type="text" id="c-id" placeholder="Course ID *" inputmode="numeric"><br>
+                <input type="text" id="c-name" placeholder="Course Name *"><br>
+                <input type="text" id="c-dept-id" placeholder="Belongs to Department ID *" inputmode="numeric"><br>
+                <input type="text" id="c-uni" placeholder="University ID *"><br>
+                <input type="text" id="c-year" placeholder="Year *" inputmode="numeric"><br>
+                <input type="text" id="c-sem" placeholder="Semester *" inputmode="numeric"><br>
+                <button class="action" onclick="addCourse()">Add Course</button>
+                <span id="course-msg" style="margin-left:8px;font-weight:bold"></span>
+            </div>
+        </div>
+
+        <div id="instructors" class="section">
+            <h2>Manage Instructors</h2>
+            <div class="form-group">
+                <h3>Add New Instructor</h3>
+                <input type="text" id="inst-id" placeholder="Instructor ID *" inputmode="numeric"><br>
+                <input type="text" id="inst-first" placeholder="First Name *"><br>
+                <input type="text" id="inst-last" placeholder="Last Name *"><br>
+                <input type="text" id="inst-univ" placeholder="University ID *"><br>
+                <input type="text" id="inst-dept" placeholder="Department ID *"><br>
+
+                <button class="action" onclick="addInstructor()">Create Instructor</button>
+                <span id="inst-msg" style="margin-left:8px;font-weight:bold"></span>
+            </div>
+        </div>
+
+        <div id="course_mapping" class="section">
+            <h2>Manage Course Maps</h2>
+            <div class="form-group">
+                <h3>Assign Instructor to Course</h3>
+                <input type="text" id="map-course-id" placeholder="Course ID *" inputmode="numeric"><br>
+                <input type="text" id="map-inst-id" placeholder="Instructor ID *" inputmode="numeric"><br>
+
+                <button class="action" onclick="assignInstructor()">Assign Instructor</button>
+                <span id="map-inst-msg" style="margin-left:8px;font-weight:bold"></span>
+            </div>
+
+            <div class="form-group">
+                <h3>Assign Book to Course</h3>
+                <input type="text" id="map-book-course-id" placeholder="Course ID *" inputmode="numeric"><br>
+                <input type="text" id="map-book-id" placeholder="Book ID *" inputmode="numeric"><br>
+
+                <button class="action" onclick="assignBook()">Assign Book</button>
+                <span id="map-book-msg" style="margin-left:8px;font-weight:bold"></span>
+            </div>
+        </div>
+
+        <div id="view_employees" class="section">
+            <h2>View Staff</h2>
+            <select id="empViewType" onchange="fetchEmployees()">
+                <option value="">Select Role</option>
+                <option value="admin">admin</option>
+                <option value="support">customer support</option>
+            </select>
+            <button class="action" onclick="fetchEmployees()">Load</button>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Gender</th>
+                        <th>Salary</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Address</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="employeeTableBody">
+                </tbody>
+            </table>
+        </div>
+        <div id="view-universities" class="section">
+            <h2>All Universities</h2>
+            <button class="action" onclick="loadUniversities()">Load</button>
+
+            <table id="uniTable">
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Address</th>
+                </tr>
+            </table>
+        </div>
+
+        <div id="view-departments" class="section">
+            <h2>Departments</h2>
+
+            <input type="text" id="search-uni-dept" placeholder="University Name">
+            <button class="action" onclick="loadDepartments()">Search</button>
+
+            <table id="deptTable">
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                </tr>
+            </table>
+        </div>
+
+        <div id="view-courses" class="section">
+            <h2>Courses & Books & Instructors</h2>
+
+            <input type="text" id="search-uni-course" placeholder="University Name">
+            <input type="text" id="search-dept-course" placeholder="Department Name">
+            <button class="action" onclick="loadCourses()">Search</button>
+
+            <table id="courseTable">
+                <tr>
+                    <th>Course</th>
+                    <th>Books</th>
+                    <th>Instructors</th>
+                </tr>
+            </table>
+        </div>
+        <div id="add_employees" class="section">
+            <h2>Add Employee</h2>
+            <div class="form-group">
+                <select id="emp-role">
+                    <option value="">Select Role *</option>
+                    <option value="admin">admin</option>
+                    <option value="support">customer support</option>
+                </select><br>
+                <input type="text" id="emp-id" placeholder="Employee ID *" inputmode="numeric"><br>
+                <input type="text" id="emp-first" placeholder="First Name *"><br>
+                <input type="text" id="emp-last" placeholder="Last Name *"><br>
+                <select id="emp-gender">
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select><br>
+                <input type="email" id="emp-email" placeholder="Email *"><br>
+                <input type="text" id="emp-phone" placeholder="Phone Number *"><br>
+                <input type="text" id="emp-address" placeholder="Address"><br>
+                <input type="text" id="emp-salary" placeholder="Salary (₹)" inputmode="decimal"><br>
+                <input type="text" id="emp-aadhaar" placeholder="Aadhar  Number" inputmode="numeric"><br>
+
+                <button class="action" onclick="addEmployee()">Add Employee</button>
+                <span id="emp-msg" style="margin-left:8px;font-weight:bold"></span>
+            </div>
+        </div>
+
+        <div id="tickets" class="section">
+            <h2>Tickets</h2>
+            <div class="ticket-tabs">
+                <button class="tab-active" onclick="showTicketTab('tab-assigned', this)">Assigned</button>
+                <button onclick="showTicketTab('tab-inprocess', this)">In-Process</button>
+                <button onclick="showTicketTab('tab-solved', this)">Completed</button>
+            </div>
+
+            <div id="tab-assigned" class="tab-panel tab-show">
+                <table id="assignedTable">
+                    <tr>
+                        <th>Ticket ID</th>
+                        <th>Created by</th>
+                        <th>Date logged</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Problem description</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                    {% for t in assigned_tickets %}
+                    <tr id="trow-{{ t.ticket_id }}">
+                        <td>{{ t.ticket_id }}</td>
+                        <td>{{ t.created_by}}</td>
+                        <td>{{ t.date_logged}}</td>
+                        <td>{{ t.title }}</td>
+                        <td>{{ t.category }}</td>
+                        <td>{{ t.problem_description }}</td>
+                        <td>{{ t.status_history }}</td>
+                        <td>assigned</td>
+                        <td>
+                            <button class="action" onclick="acceptTicket({{ t.ticket_id }})">Accept</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+
+            <div id="tab-inprocess" class="tab-panel">
+                <table id="inprocessTable">
+                    <tr>
+                        <th>Ticket ID</th>
+                        <th>Created by</th>
+                        <th>Date logged</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Problem description</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                    {% for t in inprocess_tickets %}
+                    <tr id="trow-{{ t.ticket_id }}">
+                        <td>{{ t.ticket_id }}</td>
+                        <td>{{ t.created_by }}</td>
+                        <td>{{ t.date_logged}}</td>
+                        <td>{{ t.title }}</td>
+                        <td>{{ t.category }}</td>
+                        <td>{{ t.problem_description }}</td>
+                        <td>{{ t.status_history}}</td>
+                        <td>in-process</td>
+                        <td>
+                            <button class="action" onclick="solveTicket({{ t.ticket_id }})">Mark Completed</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+
+            <div id="tab-solved" class="tab-panel">
+                <table id="solvedTable">
+                    <tr>
+                        <th>Ticket ID</th>
+                        <th>Created by</th>
+                        <th>Date logged</th>
+                        <th>Title</th>
+                        <th>category</th>
+                        <th>Problem description</th>
+                        <th>Resolved by</th>
+                        <th>Status</th>
+                        <th>Completion date</th>
+                    </tr>
+                    {% for t in completed_tickets %}
+                    <tr>
+                        <td>{{ t.ticket_id }}</td>
+                        <td>{{ t.created_by }}</td>
+                        <td>{{ t.date_logged }}</td>
+                        <td>{{ t.title }}</td>
+                        <td>{{ t.category }}</td>
+                        <td>{{ t.problem_description }}</td>
+                        <td>{{ t.resolved_by }}</td>
+                        <td>{{ t.status_history }}</td>
+                        <td>{{ t.completion_date }}</td>
+                        <td>completed</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+        <div id="profile" class="section">
+            <h2>Profile</h2>
+            <div class="card" style="width: 300px;">
+                <p><b>Employee ID:</b> {{ admin.employee_id }}</p>
+                <p><b>First Name:</b> {{ admin.first_name }}</p>
+                <p><b>Last Name:</b> {{ admin.last_name }}</p>
+                <p><b>Gender:</b> {{ admin.gender }}</p>
+                <p><b>Email:</b> {{ admin.email }}</p>
+                <p><b>Phone:</b> {{ admin.phone_number }}</p>
+                <p><b>Address:</b> {{ admin.address }}</p>
+                <p><b>Salary:</b> ₹{{ admin.salary }}</p>
+                <p><b>Aadhaar:</b> {{ admin.aadhaar_number | default('[Aadhaar Redacted]') }}</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        function addBook() {
+            let id = document.getElementById('b-id').value.trim();
+            let title = document.getElementById('b-title').value.trim();
+            let authors = document.getElementById('b-authors').value.trim();
+            let format = document.getElementById('b-format').value;
+            let type = document.getElementById('b-type').value;
+            let purchase = document.getElementById('b-purchase').value;
+            let rating = document.getElementById('b-rating').value;
+            let quantity = document.getElementById('b-qua').value;
+            let category = document.getElementById('b-cat').value;
+            let subcategory = document.getElementById('b-subcat').value;
+            let keywords = document.getElementById('b-key').value;
+            let msg = document.getElementById('book-msg');
+
+            if (!id || !title || !authors || !format || !type || !purchase || !category || !subcategory || !keywords) {
+                msg.style.color = 'red';
+                msg.textContent = 'Fill all required (*) fields.';
+                return;
+            }
+
+            let payload = {
+                book_id: id,
+                title: title,
+                authors: authors,
+                isbn: document.getElementById('b-isbn').value.trim(),
+                publisher: document.getElementById('b-publisher').value.trim(),
+                publication_date: document.getElementById('b-pubdate').value,
+                edition: document.getElementById('b-edition').value,
+                language: document.getElementById('b-language').value.trim(),
+                format: format,
+                book_type: type,
+                purchase_option: purchase,
+                price: document.getElementById('b-price').value,
+                rating: rating,
+                quantity: quantity,
+                category: category,
+                subcategory: subcategory,
+                keywords: keywords
+            };
+
+            console.log("Adding Book Payload:", payload);
+
+            // api call for adding books by an admin
+            fetch('/admin/books/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        msg.style.color = 'green';
+                        msg.textContent = '"' + title + '" added!';
+                        clearBookForm();
+                        setTimeout(() => msg.textContent = '', 3000);
+                    } else {
+                        msg.style.color = 'red';
+                        msg.textContent = data.error || 'Error adding book.';
+                    }
+                }).catch(err => {
+                    msg.style.color = 'red';
+                    msg.textContent = 'Server error.';
+                    console.error(err);
+                });
+        }
+
+        function clearBookForm() {
+            ['b-id', 'b-title', 'b-authors', 'b-isbn', 'b-publisher', 'b-pubdate',
+                'b-edition', 'b-language', 'b-format', 'b-type', 'b-purchase', 'b-price',
+                'b-rating', 'b-qua'].forEach(id => {
+                    document.getElementById(id).value = '';
+                });
+        }
+
+        function deleteBook(id) {
+            if (!confirm('Delete this book?')) return;
+            // api call for deleting books by an admin
+            fetch('/admin/books/delete/' + id, { method: 'POST' }).then(r => r.json()).then(data => {
+                if (data.success) document.getElementById('brow-' + id).remove(); else alert(data.error);
+            }).catch(err => console.error(err));
+        }
+
+        function addUniversity() {
+            let id = document.getElementById('u-id').value.trim();
+            let name = document.getElementById('u-name').value.trim();
+            let msg = document.getElementById('uni-msg');
+
+            if (!id || !name) {
+                msg.style.color = 'red';
+                msg.textContent = 'ID and Name are required.';
+                return;
+            }
+
+            let payload = {
+                university_id: id,
+                name: name,
+                address: document.getElementById('u-address').value.trim(),
+                rep_first_name: document.getElementById('u-rep-first').value.trim(),
+                rep_last_name: document.getElementById('u-rep-last').value.trim(),
+                rep_email: document.getElementById('u-rep-email').value.trim(),
+                rep_phone: document.getElementById('u-rep-phone').value.trim()
+            };
+
+            console.log("Adding University:", payload);
+
+            // api call for adding of university by an admin
+            fetch('/admin/universities/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).then(r => r.json()).then(data => {
+                if (data.success) {
+                    msg.style.color = 'green'; msg.textContent = 'University added!';
+                    setTimeout(() => msg.textContent = '', 3000);
+                } else {
+                    msg.style.color = 'red'; msg.textContent = data.error || 'Error.';
+                }
+            }).catch(err => { msg.style.color = 'red'; msg.textContent = 'Server Error'; console.error(err); });
+            if (data.success) {
+                msg.style.color = 'green'; msg.textContent = 'University added!';
+                ['u-id', 'u-name', 'u-address', 'u-rep-first', 'u-rep-last', 'u-rep-email', 'u-rep-phone'].forEach(id => {
+                    document.getElementById(id).value = '';
+                });
+                setTimeout(() => msg.textContent = '', 3000);
+            }
+        }
+
+        function addDepartment() {
+            let id = document.getElementById('d-id').value.trim();
+            let name = document.getElementById('d-name').value.trim();
+            let uni_id = document.getElementById('d-uni-id').value.trim();
+            let msg = document.getElementById('dept-msg');
+
+            if (!id || !name || !uni_id) {
+                msg.style.color = 'red';
+                msg.textContent = 'All fields are required.';
+                return;
+            }
+
+            let payload = { department_id: id, department_name: name, university_id: uni_id };
+            console.log("Adding Dept:", payload);
+
+            // api call for adding of departments by an admin
+            fetch('/admin/departments/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).then(r => r.json()).then(data => {
+                if (data.success) {
+                    msg.style.color = 'green'; msg.textContent = 'Department added!';
+                    setTimeout(() => msg.textContent = '', 3000);
+                } else {
+                    msg.style.color = 'red'; msg.textContent = data.error || 'Error.';
+                }
+            }).catch(err => { msg.style.color = 'red'; msg.textContent = 'Server Error'; console.error(err); });
+            if (data.success) {
+                msg.style.color = 'green'; msg.textContent = 'Department added!';
+                ['d-id', 'd-name', 'd-uni-id'].forEach(id => document.getElementById(id).value = '');
+                setTimeout(() => msg.textContent = '', 3000);
+            }
+        }
+
+        function addCourse() {
+            let id = document.getElementById('c-id').value.trim();
+            let name = document.getElementById('c-name').value.trim();
+            let dept_id = document.getElementById('c-dept-id').value.trim();
+            let univ = document.getElementById('c-uni').value.trim();
+            let year = document.getElementById('c-year').value.trim();
+            let sem = document.getElementById('c-sem').value.trim();
+            let msg = document.getElementById('course-msg');
+
+            if (!id || !name || !dept_id || !univ || !year || !sem) {
+                msg.style.color = 'red';
+                msg.textContent = 'All fields are required.';
+                return;
+            }
+
+            let payload = { course_id: id, course_name: name, department_id: dept_id, university_id: univ, year: year, semester: sem };
+            console.log("Attempting to insert course with data:", payload);
+
+            // api call for adding of courses by an admin
+            fetch('/admin/courses/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        msg.style.color = 'green';
+                        msg.textContent = 'Course added!';
+                        console.log("Success! Server response:", data);
+                        setTimeout(() => msg.textContent = '', 3000);
+                    } else {
+                        msg.style.color = 'red';
+                        msg.textContent = data.error || 'Error.';
+                        console.warn("Server refused insertion:", data.error);
+                    }
+                })
+                .catch(error => {
+                    msg.style.color = 'red';
+                    msg.textContent = 'A network or server error occurred.';
+                    console.error("Fetch Error:", error);
+                });
+            if (data.success) {
+                msg.style.color = 'green'; msg.textContent = 'Course added!';
+                ['c-id', 'c-name', 'c-dept-id', 'c-uni', 'c-year', 'c-sem'].forEach(id => document.getElementById(id).value = '');
+                setTimeout(() => msg.textContent = '', 3000);
+            }
+        }
+
+        function addEmployee() {
+            let role = document.getElementById('emp-role').value;
+            let id = document.getElementById('emp-id').value.trim();
+            let first = document.getElementById('emp-first').value.trim();
+            let last = document.getElementById('emp-last').value.trim();
+            let gender = document.getElementById('emp-gender').value;
+            let email = document.getElementById('emp-email').value.trim();
+            let phone = document.getElementById('emp-phone').value.trim();
+            let address = document.getElementById('emp-address').value.trim();
+            let salary = document.getElementById('emp-salary').value.trim();
+            let aadhaar = document.getElementById('emp-aadhaar').value.trim();
+            let msg = document.getElementById('emp-msg');
+
+            if (!role || !id || !first || !last || !email || !phone) {
+                msg.style.color = 'red';
+                msg.textContent = 'Fill all required (*) fields.';
+                return;
+            }
+
+            let payload = {
+                type: role, employee_id: id, first_name: first, last_name: last,
+                gender: gender, email: email, phone_number: phone,
+                address: address, salary: salary, aadhaar_number: aadhaar
+            };
+
+            console.log("Adding Employee:", payload);
+
+            // api call for adding of employees by a super-admin
+            fetch(`/superadmin/employees/add`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        msg.style.color = 'green'; msg.textContent = 'Employee added!';
+                        setTimeout(() => msg.textContent = '', 3000);
+                        ['emp-role', 'emp-id', 'emp-first', 'emp-last', 'emp-gender', 'emp-email', 'emp-phone', 'emp-address', 'emp-salary', 'emp-aadhaar'].forEach(i => document.getElementById(i).value = '');
+                    } else {
+                        msg.style.color = 'red'; msg.textContent = data.error || 'Error.';
+                    }
+                })
+                .catch(error => {
+                    msg.style.color = 'red'; msg.textContent = 'Server error.';
+                    console.error(error);
+                });
+        }
+
+        async function fetchEmployees() {
+            const type = document.getElementById('empViewType').value;
+            const tbody = document.getElementById('employeeTableBody');
+            if (!type) { tbody.innerHTML = ''; return; }
+
+            tbody.innerHTML = '<tr><td colspan="8">Loading...</td></tr>';
+
+            try {
+                // api call for viewing employees by a super-admin
+                const response = await fetch(`/superadmin/employees/view/${type}`);
+                const data = await response.json();
+                tbody.innerHTML = '';
+
+                if (data.success) {
+                    data.employees.forEach(emp => {
+                        tbody.innerHTML += `
+                    <tr id="emp-row-${emp.employee_id}">
+                        <td>${emp.employee_id}</td>
+                        <td>${emp.first_name} ${emp.last_name}</td>
+                        <td>${emp.gender}</td>
+                        <td>₹${emp.salary}</td>
+                        <td>${emp.email}</td>
+                        <td>${emp.phone_number}</td>
+                        <td>${emp.address}</td>
+                        <td>
+                            <button class="action delete" onclick="deleteEmployee(${emp.employee_id}, '${type}')">Delete</button>
+                        </td>
+                    </tr>`;
+                    });
+                }
+            } catch (e) {
+                alert("Error loading staff.");
+                console.error(e);
+            }
+        }
+
+        async function deleteEmployee(id, type) {
+            if (!confirm("Delete this staff member and revoke access?")) return;
+            try {
+                // api call for deleting employees by a super-admin
+                const resp = await fetch(`/superadmin/employees/delete/${type}/${id}`, { method: 'POST' });
+                const res = await resp.json();
+                if (res.success) document.getElementById(`emp-row-${id}`).remove();
+                else alert(res.error || "Failed to delete");
+            } catch (e) {
+                console.error(e);
+                alert("Server Error");
+            }
+        }
+
+        function filterBooks() {
+            let q = document.getElementById('searchBox').value.toLowerCase();
+            let rows = document.querySelectorAll('#bookTable tr:not(:first-child)');
+            rows.forEach(row => {
+                let text = row.innerText.toLowerCase();
+                row.style.display = text.includes(q) ? '' : 'none';
+            });
+        }
+
+        function showTicketTab(tabId, btn) {
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('tab-show'));
+            document.getElementById(tabId).classList.add('tab-show');
+            document.querySelectorAll('.ticket-tabs button').forEach(b => b.classList.remove('tab-active'));
+            btn.classList.add('tab-active');
+        }
+
+        function acceptTicket(id) {
+            // api call for accepting tickets by a super-admin
+            fetch('/admin/tickets/accept/' + id, { method: 'POST' }).then(r => r.json()).then(data => { if (data.success) location.reload(); else alert(data.error); }).catch(e => console.error(e));
+        }
+
+        function solveTicket(id) {
+            // api call for completing tickets by a super-admin
+            fetch('/admin/tickets/complete/' + id, { method: 'POST' }).then(r => r.json()).then(data => { if (data.success) location.reload(); else alert(data.error); }).catch(e => console.error(e));
+        }
+
+        function addInstructor() {
+            let payload = {
+                instructor_id: document.getElementById('inst-id').value.trim(),
+                first_name: document.getElementById('inst-first').value.trim(),
+                last_name: document.getElementById('inst-last').value.trim(),
+                univ: document.getElementById('inst-univ').value.trim(),
+                dept: document.getElementById('inst-dept').value.trim()
+            };
+            let msg = document.getElementById('inst-msg');
+
+            if (!payload.instructor_id || !payload.first_name || !payload.last_name || !payload.univ || !payload.dept) {
+                msg.style.color = 'red'; msg.textContent = 'Fill all the values'; return;
+            }
+
+            console.log("Adding Instructor:", payload);
+
+            // api call for adding instructors by a super-admin
+            fetch('/admin/instructors/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).then(r => r.json()).then(data => {
+                msg.style.color = data.success ? 'green' : 'red';
+                msg.textContent = data.success ? 'Instructor added!' : data.error;
+                setTimeout(() => msg.textContent = '', 3000);
+            }).catch(err => { msg.style.color = 'red'; msg.textContent = 'Server Error'; console.error(err); });
+        }
+
+        function assignInstructor() {
+            let payload = {
+                course_id: document.getElementById('map-course-id').value.trim(),
+                instructor_id: document.getElementById('map-inst-id').value.trim()
+            };
+            let msg = document.getElementById('map-inst-msg');
+
+            console.log("Assigning Instructor:", payload);
+
+            // api call for assigning an instructor for a course by a super-admin
+            fetch('/admin/courses/assign_instructor', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).then(r => r.json()).then(data => {
+                msg.style.color = data.success ? 'green' : 'red';
+                msg.textContent = data.success ? 'Instructor assigned!' : data.error;
+                setTimeout(() => msg.textContent = '', 3000);
+            }).catch(err => { msg.style.color = 'red'; msg.textContent = 'Server Error'; console.error(err); });
+        }
+
+        function assignBook() {
+            let payload = {
+                course_id: document.getElementById('map-book-course-id').value.trim(),
+                book_id: document.getElementById('map-book-id').value.trim()
+            };
+            let msg = document.getElementById('map-book-msg');
+
+            console.log("Assigning Book:", payload);
+
+            // api call for assigning a book to a course by a super-admin
+            fetch('/admin/courses/assign_book', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).then(r => r.json()).then(data => {
+                msg.style.color = data.success ? 'green' : 'red';
+                msg.textContent = data.success ? 'Book assigned!' : data.error;
+                setTimeout(() => msg.textContent = '', 3000);
+            }).catch(err => { msg.style.color = 'red'; msg.textContent = 'Server Error'; console.error(err); });
+        }
+        function clearInputs(containerId) {
+            const container = document.getElementById(containerId);
+            const inputs = container.querySelectorAll('input, select');
+            inputs.forEach(input => input.value = '');
+        }
+        function loadUniversities() {
+            // api call for viewing universities
+            fetch('/admin/view/universities')
+                .then(r => r.json())
+                .then(data => {
+                    let table = document.getElementById('uniTable');
+                    table.innerHTML = `<tr><th>ID</th><th>Name</th><th>Address</th></tr>`;
+
+                    data.forEach(u => {
+                        table.innerHTML += `
+                <tr>
+                    <td>${u.university_id}</td>
+                    <td>${u.name}</td>
+                    <td>${u.address || '-'}</td>
+                </tr>`;
+                    });
+                });
+        }
+
+        function loadDepartments() {
+            let uni = document.getElementById('search-uni-dept').value;
+
+            // api call for viewing department based on the university
+            fetch('/admin/view/departments?university=' + encodeURIComponent(uni))
+                .then(r => r.json())
+                .then(data => {
+                    let table = document.getElementById('deptTable');
+                    table.innerHTML = `<tr><th>ID</th><th>Name</th></tr>`;
+
+                    data.forEach(d => {
+                        table.innerHTML += `
+                <tr>
+                    <td>${d.department_id}</td>
+                    <td>${d.department_name}</td>
+                </tr>`;
+                    });
+                });
+        }
+
+        function loadCourses() {
+            let uni = document.getElementById('search-uni-course').value;
+            let dept = document.getElementById('search-dept-course').value;
+
+            // api call for viewing courses based on university and a department
+            fetch(`/admin/view/courses?university=${encodeURIComponent(uni)}&department=${encodeURIComponent(dept)}`)
+                .then(r => r.json())
+                .then(data => {
+                    let table = document.getElementById('courseTable');
+
+                    table.innerHTML = `
+            <tr>
+                <th>Course</th>
+                <th>Books</th>
+                <th>Instructors</th>
+            </tr>`;
+
+                    data.forEach(c => {
+                        table.innerHTML += `
+                <tr>
+                    <td>${c.course_name}</td>
+                    <td>${c.books || '-'}</td>
+                    <td>${c.instructors || '-'}</td>
+                </tr>`;
+                    });
+                });
+        }
+    </script>
+</body>
+
+</html>

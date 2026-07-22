@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer-Support</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f4f6f8;
+            display: flex;
+        }
+
+        .sidebar {
+            position: fixed;
+            width: 250px;
+            height: 100vh;
+            background: #1e3a8a;
+            color: white;
+            padding: 20px;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .sidebar button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            border: none;
+            background: #ecf0f1;
+            color: black;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        .sidebar button:hover {
+            background: #1abc9c;
+            transform: translateX(5px);
+        }
+
+        .logout-btn {
+            background: #e74c3c !important;
+            margin-top: 50px !important;
+            text-align:
+                center !important;
+        }
+
+        .main {
+            margin-left: 250px;
+            padding: 30px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .header-card {
+            background: white;
+            color: #1e3a8a;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .card {
+            background: white;
+            padding: 18px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            border-left: 5px solid #1abc9c;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        button.action {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .btn-submit {
+            background: #1abc9c;
+            width: 100%;
+        }
+
+        .btn-assign {
+            background: #e67e22;
+        }
+
+        .disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            padding: 10px 20px;
+            border-radius: 4px;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <h2>Gyan Pustak</h2>
+        <button onclick="showSection('tickets')">View Tickets</button>
+        <button onclick="showSection('create')">Create Ticket</button>
+        <button onclick="showSection('orders')">Cancelled Orders</button>
+        <button onclick="showSection('profile')">My Profile</button>
+        <button class="logout-btn" onclick="window.location.href='/logout'">Logout</button>
+    </div>
+
+    <div class="main">
+        <div class="container">
+
+            <div id="ticketsSection" class="section active">
+                <h3>Live Trouble Tickets</h3>
+                <div id="ticketList">Loading...</div>
+            </div>
+
+            <div id="createSection" class="section">
+                <h3>Create Ticket</h3>
+                <div class="card" style="max-width:600px;">
+                    <input id="ticket_title" placeholder="Issue Title">
+                    <textarea id="ticket_desc" rows="4" placeholder="Detailed description"></textarea>
+                    <select id="ticket_cat">
+                        <option value="user profile">User Profile</option>
+                        <option value="products">Products</option>
+                        <option value="cart">Cart</option>
+                        <option value="orders">Orders</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <button class="btn-submit action" onclick="submitTicket()">Submit Ticket</button>
+                </div>
+            </div>
+
+            <div id="ordersSection" class="section"></div>
+
+            <div id="profileSection" class="section">
+                <h3>My Profile</h3>
+                <div id="profileContent" class="card">Loading...</div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+
+        async function loadTickets() {
+            let div = document.getElementById("ticketList");
+            div.innerHTML = "Loading...";
+
+            try {
+                // api call for getting tickets 
+                let res = await fetch('/support/tickets');
+                let data = await res.json();
+
+                div.innerHTML = "";
+
+                if (!data.length) {
+                    div.innerHTML = "<p>No tickets found.</p>";
+                    return;
+                }
+
+                data.forEach(t => {
+                    div.innerHTML += `
+            <div class="card">
+                <h4>${t.title}</h4>
+                <p>${t.description}</p>
+                <small>Category: ${t.category} | ID: ${t.ticket_id}</small>
+                <p>Status: 
+                    <b style="color:${t.status === 'new' ? '#e67e22' : '#27ae60'}">
+                        ${t.status.toUpperCase()}
+                    </b>
+                </p>
+                ${t.status === 'new'
+                            ? `<button class="btn-assign action" onclick="assign(${t.ticket_id})">Assign</button>`
+                            : `<button class="disabled">Assigned</button>`
+                        }
+            </div>`;
+                });
+
+            } catch {
+                div.innerHTML = "<p style='color:red;'>Error loading tickets</p>";
+            }
+        }
+
+        async function submitTicket() {
+            let title = ticket_title.value;
+            let desc = ticket_desc.value;
+            let cat = ticket_cat.value;
+
+            if (!title || !desc) return alert("Fill all fields");
+
+            // api call for creating new tickers by a super-admin
+            let res = await fetch('/support/tickets/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, description: desc, category: cat })
+            });
+
+            let data = await res.json();
+
+            if (data.success) {
+                alert("Ticket Created!");
+                ticket_title.value = "";
+                ticket_desc.value = "";
+                showSection('tickets');
+            }
+        }
+
+        async function assign(id) {
+            // api call for assigning a ticket for an admin by a customer support user
+            await fetch(`/support/tickets/assign/${id}`, { method: 'POST' });
+            loadTickets();
+        }
+
+        async function loadProfile() {
+            let div = document.getElementById("profileContent");
+
+            try {
+                // api call for viewing the profile of a customer support user
+                let res = await fetch('/support/profile');
+                let data = await res.json();
+
+                let html = "";
+                for (let key in data) {
+                    let formattedKey = key.replace('_', ' ').toUpperCase();
+                    html += `<p><b>${formattedKey}:</b> ${data[key]}</p>`;
+                }
+
+                div.innerHTML = html;
+
+            } catch {
+                div.innerHTML = "<p style='color:red;'>Error loading profile</p>";
+            }
+        }
+
+        async function loadOrders() {
+            let div = document.getElementById("ordersSection");
+            div.innerHTML = "<h3>Cancelled Orders</h3>";
+
+            try {
+                // api call for viewing cancelled-orders-list
+                let res = await fetch('/support/cancelled-orders-list');
+                let data = await res.json();
+
+                if (!data.length) {
+                    div.innerHTML += "<div class='card'>No cancelled orders</div>";
+                    return;
+                }
+
+                data.forEach(o => {
+                    div.innerHTML += `
+            <div class="card" style="border-left:5px solid red;">
+                <h4>Order #${o.order_id}</h4>
+                <p>${o.title}</p>
+                <button class="btn-submit action" onclick="restock(${o.can_id})">Restock</button>
+            </div>`;
+                });
+
+            } catch {
+                div.innerHTML += "<p style='color:red;'>Error loading orders</p>";
+            }
+        }
+
+        async function restock(id) {
+            // api call for restocking back the cancelled-orders
+            await fetch(`/support/orders/accept/${id}`, { method: 'POST' });
+            loadOrders();
+        }
+
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(id + "Section").classList.add('active');
+
+            if (id === 'tickets') loadTickets();
+            if (id === 'profile') loadProfile();
+            if (id === 'orders') loadOrders();
+        }
+
+        window.onload = loadTickets;
+
+    </script>
+
+</body>
+
+</html>

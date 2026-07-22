@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{ book.title }} - Gyan Pustak</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f6f9;
+        }
+
+        header {
+            background: #1e3a8a;
+            color: white;
+            padding: 15px 40px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            display: flex;
+            gap: 40px;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .details-info {
+            flex: 1;
+        }
+
+        h1 {
+            color: #1e3a8a;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .author-text {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .price {
+            font-size: 26px;
+            color: #059669;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .rating-overall {
+            font-size: 18px;
+            font-weight: bold;
+            color: #f59e0b;
+            margin-bottom: 15px;
+        }
+
+        .stock-status {
+            margin-bottom: 25px;
+        }
+
+        .stock-tag {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .in-stock {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .out-of-stock {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .btn-add {
+            background: #1e3a8a;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .btn-add:hover {
+            background: #2563eb;
+        }
+
+        .btn-add:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .review-section {
+            margin-top: 40px;
+            border-top: 2px solid #eee;
+            padding-top: 20px;
+        }
+
+        .review-card {
+            background: #fafafa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #1e3a8a;
+        }
+
+        .user-rating {
+            color: #f59e0b;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .review-text {
+            font-style: italic;
+            color: #333;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">Gyan Pustak</div>
+    </header>
+
+    <div class="main-content">
+        <div class="container">
+            <div class="details-info">
+                <a href="/student_dash"
+                    style="display: inline-block; margin-bottom: 15px; color: #1e3a8a; text-decoration: none; font-size: 14px;">&larr;
+                    Back to Home</a>
+                <h1>{{ book.title }}</h1>
+                <p class="author-text"><strong>By:</strong> {{ authors }}</p>
+
+                <p class="rating-overall">Overall Rating: ⭐ {{ book.rating }} / 5</p>
+
+                <p class="price">₹{{ book.price }}</p>
+
+                <div class="stock-status">
+                    <strong>Availability:</strong>
+                    {% if book.quantity > 0 %}
+                    <span class="stock-tag in-stock">In Stock ({{ book.quantity }} available)</span>
+                    {% else %}
+                    <span class="stock-tag out-of-stock">Out of Stock</span>
+                    {% endif %}
+                </div>
+
+                <button class="btn-add" onclick="addToCart('{{ book.book_id }}')" {% if book.quantity <=0 %} disabled {%
+                    endif %}>
+                    {% if book.quantity > 0 %} Add to Cart {% else %} Out of Stock {% endif %}
+                </button>
+
+                <div class="review-section">
+                    <h3>User Reviews</h3>
+                    {% if reviews %}
+                    {% for review in reviews %}
+                    <div class="review-card">
+                        <div class="user-rating">⭐ {{ review.rating }} / 5</div>
+                        <p class="review-text">"{{ review.review_text }}"</p>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p style="color: #888; margin-top: 10px;">No reviews yet. Be the first to review!</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function addToCart(bookId) {
+            try {
+                // api call for adding book into the cart
+                const response = await fetch('/api/add-to-cart', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ book_id: bookId })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert("✅ Added to cart!");
+                } else {
+                    alert("❌ Error: " + (data.message || "Could not add to cart."));
+                }
+            } catch (error) {
+                console.error("Cart error:", error);
+                alert("Server error. Please try again later.");
+            }
+        }
+    </script>
+</body>
+
+</html>

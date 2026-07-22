@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Profile</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f4f4;
+            margin: 0;
+        }
+
+        .home {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1e3a8a;
+            color: white;
+            padding: 15px 30px;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+            color: white;
+        }
+
+        nav a {
+            color: white;
+            margin-left: 20px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .container {
+            width: 450px;
+            margin: 40px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            border-bottom: 2px solid #1e3a8a;
+            padding-bottom: 10px;
+            margin-top: 0;
+            color: #1e3a8a;
+        }
+
+        p {
+            margin: 12px 0;
+            font-size: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+
+        b {
+            color: #555;
+            width: 150px;
+            display: inline-block;
+        }
+
+        span {
+            color: #111;
+            font-weight: 500;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="home">
+        <div class="" logo>Gyan Pustak</div>
+        <nav>
+            <a href="student_dash">Home</a>
+        </nav>
+    </div>
+
+    <div class="container">
+        <h2>Profile</h2>
+
+        <p><b>Student ID:</b> <span id="sid"></span></p>
+        <p><b>Name:</b> <span id="name"></span></p>
+        <p><b>Email:</b> <span id="email"></span></p>
+        <p><b>Phone:</b> <span id="phone"></span></p>
+        <p><b>Address:</b> <span id="address"></span></p>
+        <p><b>Date of Birth:</b> <span id="dob"></span></p>
+        <p><b>University Name:</b> <span id="uid"></span></p>
+        <p><b>Department Name:</b> <span id="did"></span></p>
+        <p><b>Status:</b> <span id="status"></span></p>
+        <p><b>Current Year:</b> <span id="year"></span></p>
+    </div>
+
+    <script>
+        // api call for getting student profile
+        fetch('/student/student-profile')
+            .then(response => response.json())
+            .then(user => {
+                if (!user || user.error) {
+                    document.querySelector('.container').innerHTML = `<h2>Profile</h2><p>${user.error || "User not found"}</p>`;
+                    return;
+                }
+
+                document.getElementById("sid").innerText = user.student_id || "N/A";
+                document.getElementById("name").innerText = (user.first_name || '') + " " + (user.last_name || '');
+                document.getElementById("email").innerText = user.email || "N/A";
+                document.getElementById("phone").innerText = user.phone_number || "N/A";
+                document.getElementById("address").innerText = user.address || "N/A";
+                document.getElementById("dob").innerText = user.date_of_birth || "N/A";
+                document.getElementById("uid").innerText = user.name || "N/A";
+                document.getElementById("did").innerText = user.department_name || "N/A";
+                document.getElementById("status").innerText = user.student_status || "N/A";
+                document.getElementById("year").innerText = user.current_year || "N/A";
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Error loading profile. Check if you are logged in.");
+            });
+    </script>
+
+</body>
+
+</html>
