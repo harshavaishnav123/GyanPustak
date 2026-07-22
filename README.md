@@ -1,4 +1,4 @@
-﻿# GyanPustak: Library & Bookstore Management System
+# Gyan Pustak: Library & Bookstore Management System
 
 ## Overview
 
@@ -17,35 +17,77 @@ The system also supports **multi-role access control** including Admin, Superadm
 
 ## Flow Diagram
 
-                                        Login
-                                          │
-    ┌───────────────────────┬──────────────────────┬───────────────────────┐
-    │                       │                      │                       │
- Student                  Admin               Super Admin           Customer Support
-    │                       │                      │                       │
-    ├──── Book Search       ├──── Inventory        ├──── Employees         ├──── Tickets
-    │       │               │       │              │      │                │      │
-    │       ├─ Category     │       ├─ Add Book    │      ├─ Add Admin     │      ├─ View
-    │       ├─ Keyword      │       ├─ Delete      │      ├─ Add Support   │      ├─ Assign
-    │       ├─ Author       │       ├─ Update Qty  │      ├─ View Staff    │      └─ Create
-    │       ├─ Title        │       └─ View Books  │      └─ Delete Staff  │
-    │       └─ Course       │                      │                       ├──── CAN Orders
-    │                       ├──── Academic         ├──── Dashboard         │      │
-    ├──── Cart              │       │              │                       │      ├─ View
-    │       ├─ Add          │       ├─ University  │                       │      └─ Restock
-    │       ├─ Remove       │       ├─ Department  │                       |
-    │       └─ Checkout     │       ├─ Course      |                       └──── Profile
-    │                       │       ├─ Instructor  └──── Profile
-    ├──── Orders            │       └─ Mapping     
-    │       ├─ History      │
-    │       ├─ Cancel       ├──── Tickets
-    │       └─ Review       │       ├─ Accept
-    │                       │       └─ Complete
-    ├──── Help Center       |
-    │       ├─ Create Ticket└──── Profile
-    │       └─ View Tickets 
+```text
+Login
+│
+├── Student
+│   ├── Book Search
+│   │   ├── Category
+│   │   ├── Keyword
+│   │   ├── Author
+│   │   ├── Title
+│   │   └── Course
+│   │
+│   ├── Cart
+│   │   ├── Add
+│   │   ├── Remove
+│   │   └── Checkout
+│   │
+│   ├── Orders
+│   │   ├── History
+│   │   ├── Cancel
+│   │   └── Review
+│   │
+│   ├── Help Center
+│   │   ├── Create Ticket
+│   │   └── View Tickets
+│   │
+│   └── Profile
+│
+├── Admin
+│   ├── Inventory
+│   │   ├── Add Book
+│   │   ├── Delete
+│   │   ├── Update Quantity
+│   │   └── View Books
+│   │
+│   ├── Academic
+│   │   ├── University
+│   │   ├── Department
+│   │   ├── Course
+│   │   ├── Instructor
+│   │   └── Mapping
+│   │
+│   ├── Tickets
+│   │   ├── Accept
+│   │   └── Complete
+│   │
+│   └── Profile
+│
+├── Super Admin
+│   ├── Employees
+│   │   ├── Add Admin
+│   │   ├── Add Support
+│   │   ├── View Staff
+│   │   └── Delete Staff
+│   │
+│   ├── Dashboard
+│   └── Profile
+│
+└── Customer Support
+    ├── Tickets
+    │   ├── View
+    │   ├── Assign
+    │   └── Create
     │
-    └──── Profile
+    ├── CAN Orders
+    │   ├── View
+    │   └── Restock
+    │
+    └── Profile
+```
+
+---
 
 ## Tech Stack
 
