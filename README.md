@@ -80,7 +80,7 @@ Login
     │   ├── Assign
     │   └── Create
     │
-    ├── CAN Orders
+    ├── Cancelled Orders
     │   ├── View
     │   └── Restock
     │
