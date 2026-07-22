@@ -47,8 +47,6 @@ The system also supports **multi-role access control** including Admin, Superadm
     │
     └──── Profile
 
----
-
 ## Tech Stack
 
 * **Frontend:** HTML, CSS, JavaScript (Templates)
